@@ -1,0 +1,65 @@
+﻿@{
+    ViewBag.Title = "Search";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div data-role="page" id="searchPage" data-theme="d">
+    @Html.Hidden("hidKeyword", ViewData["keyword"].ToString())
+    @Html.Hidden("hidUserId", ViewData["userid"].ToString())
+	<div data-role="header" data-theme="f">
+	</div><!-- /header -->
+        <div data-role="header" data-theme="d">
+        <a href="#" data-role="button" data-icon="back" data-rel="back" data-iconpos="notext"></a>
+    <h5>搜索</h5>
+	</div>
+	<div role="main" class="ui-content">
+		 <ul data-role="listview" id="searchResult" data-inset="true" data-theme="b">
+        </ul>
+	</div><!-- /content -->
+
+	<div data-role="footer" data-position="fixed" data-theme="a">
+    
+		<div style="font-size:12px; line-height:150%; text-align:left; margin-left:5px; float:left">版权所有：Sea Star</div>
+        <div style="font-size:12px; line-height:150%; text-align:right; margin-right:10px; float:right">E-Trip</div>
+	</div><!-- /footer -->
+    
+
+<script type="text/javascript">
+    $('#searchPage').bind('pageshow', function (event, ui) {
+        init();
+    });
+    function init() {
+        showLoading();
+        var localSearch = new BMap.LocalSearch("西安");
+        localSearch.search($("#hidKeyword").val());
+        localSearch.setSearchCompleteCallback(function (rs) {
+            hideLoading();
+            if (localSearch.getStatus() == 0) {
+                var str = "";
+
+                for (j = 0; j < rs.getCurrentNumPois(); j++) {
+                    var poi = rs.getPoi(j);
+                    str += "<li><a href='#' onclick=\"clickLocation(\'" + poi.title + "\',\'" + poi.point.lat + "\',\'" + poi.point.lng + "\')\">" + poi.title + '</a></li>';
+                }
+                $("#searchResult li").remove();
+                $("#searchResult").append(str);
+                $("#searchResult").listview('refresh');
+            }
+        });
+    }
+
+    function clickLocation(title1, lat, lng) {
+        $.mobile.navigate("/Home/Navigate?title1=" + title1 + "&lat=" + lat + "&lng=" + lng + "&userid=" + $("#hidUserId").val(), { transition: "slide"});
+    }
+
+    function showLoading() {
+        $.mobile.loading('show', {
+            textonly: false,   //是否只显示文字  
+            html: ""           //要显示的html内容，如图片等  
+        });
+    }
+    function hideLoading() {
+        $.mobile.loading('hide');
+    }
+</script>
+</div><!-- /page -->

@@ -1,0 +1,17 @@
+G:\项目\YiLuTong\YiLuTong\bin\YiLuTong.dll
+G:\项目\YiLuTong\YiLuTong\bin\YiLuTong.pdb
+G:\项目\YiLuTong\YiLuTong\bin\SeaStar.WechatAPI.dll
+G:\项目\YiLuTong\YiLuTong\bin\Senparc.Weixin.MP.dll
+G:\项目\YiLuTong\YiLuTong\obj\Debug\ResolveAssemblyReference.cache
+G:\项目\YiLuTong\YiLuTong\obj\Debug\YiLuTong.dll
+G:\项目\YiLuTong\YiLuTong\obj\Debug\YiLuTong.pdb
+C:\新建文件夹\YiLuTong\bin\YiLuTong.dll
+C:\新建文件夹\YiLuTong\bin\YiLuTong.pdb
+C:\新建文件夹\YiLuTong\bin\SeaStar.WechatAPI.dll
+C:\新建文件夹\YiLuTong\bin\Senparc.Weixin.MP.dll
+C:\新建文件夹\YiLuTong\obj\Debug\ResolveAssemblyReference.cache
+C:\新建文件夹\YiLuTong\obj\Debug\YiLuTong.dll
+C:\新建文件夹\YiLuTong\obj\Debug\YiLuTong.pdb
+C:\Users\dmarcano\Desktop\E-Trip\YiLuTong API\YiLuTong\obj\Debug\YiLuTong.csprojResolveAssemblyReference.cache
+C:\Users\dmarcano\Desktop\E-Trip\YiLuTong API\YiLuTong\obj\Debug\YiLuTong.dll
+C:\Users\dmarcano\Desktop\E-Trip\YiLuTong API\YiLuTong\obj\Debug\YiLuTong.pdb

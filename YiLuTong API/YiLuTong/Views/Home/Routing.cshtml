@@ -1,0 +1,213 @@
+﻿@model YiLuTong.Models.Route
+
+@{
+    ViewBag.Title = "Routing";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div data-role="page" id="routePage" title="路线" data-theme="d">
+    <div data-role="header">
+    <a href="#" data-role="button" data-icon="back" data-iconpos="notext" onclick="endingRoute()"></a>
+        <h3 id="membersCount">人正在共享位置</h3>
+        <a href="#" data-role="button" data-icon="alert" onclick="showmyLocation();" data-iconpos="notext">结束</a>
+    </div>
+   <div data-fullscreen="true">
+   @Html.Hidden("hidToLat", @Model.ToLatitude.ToString())
+@Html.Hidden("hidToLgd", @Model.ToLongitude.ToString())
+@Html.Hidden("hidRouteNumber", @Model.RouteNumber.ToString())
+@Html.Hidden("hidUserId", @Model.UserId.ToString())
+        <div id="map_canvas" style="width: 100%; height: 600px">
+        </div>
+    </div>
+    <script type="text/javascript">
+        $('#routePage').bind('pageshow', function (event, ui) {
+            init();
+        });
+
+        function endingRoute() {
+          
+        }
+
+        function init() {
+            routNumber = $("#hidRouteNumber").val();
+            inLocationSaving = false;
+            startOverlays = new Array();
+            userID = $("#hidUserId").val();
+            toLat = $("#hidToLat").val();
+            toLgd = $("#hidToLgd").val();
+            makerDic = new Array();
+            myLocation = { lat: 0, lng: 0 };
+            totalMembers = 0;
+            drivingDic = new Array();
+            colorList = new Array();
+            myIcon = new BMap.Icon("http://image.baidu.com/i?ct=503316480&z=&tn=baiduimagedetail&ipn=d&word=%E5%87%AF%E7%AB%8B%E5%BE%B7&step_word=&ie=utf-8&in=4835&cl=2&lm=-1&st=&pn=70&rn=1&di=29350005740&ln=1985&fr=&&fmq=1401196435858_R&ic=&s=&se=&sme=0&tab=&width=&height=&face=&is=&istype=&ist=&jit=&objurl=http%3A%2F%2Fwww.360qc.com%2Fuserfiles%2Fnew%2F2012%2F02%2F22%2F1329895291403.jpg#pn70&-1&di29350005740&objURLhttp%3A%2F%2Fwww.360qc.com%2Fuserfiles%2Fnew%2F2012%2F02%2F22%2F1329895291403.jpg&fromURLippr_z2C%24qAzdH3FAzdH3Fooo_z%26e3Bnmaqv_z%26e3Bv54AzdH3FgjofAzdH3FNjoSvi55sAzdH3Fda8dadAzdH3Flm0d_d_z%26e3Bip4s&W580&H173&T7897&S36&TPjpg",
+            { width: 32, height: 32 }, { anchor: new BMap.Size(16, 32) });
+
+            map = new BMap.Map("map_canvas");
+            map.centerAndZoom("西安", 16);
+            //map.addEventListener("click", clickLocation);
+            colorList.push("red");
+            colorList.push("black");
+            colorList.push("blue");
+            colorList.push("green");
+            colorList.push("yellow");
+            colorList.push("skyblue");
+            colorList.push("lightblue");
+            window.setInterval(bindData, 10000);
+            bindData();
+        }
+
+        function showmyLocation() { 
+            map.centerAndZoom(new BMap.Point(myLocation.lng, myLocation.lat), 16);
+        }
+
+        function saveLocation() {
+            //getLocation();
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            }
+            else { x.innerHTML = "Geolocation is not supported by this browser."; }
+        }
+
+        function showPosition(position) {
+            var lati = position.coords.latitude;
+            var longi = position.coords.longitude;
+            inLocationSaving = true;
+            $.post("/Home/SaveLocation", { lat: lati, lgd: longi, userId: userID, routNumber: routNumber }, function (data) {
+                inLocationSaving = false;
+            });
+        }
+
+        function showError (error) {
+//            switch (error.code) {
+//                case error.TIMEOUT:
+//                    alert("A timeout occured! Please try again!");
+//                    break;
+//                case error.POSITION_UNAVAILABLE:
+//                    alert('We can\'t detect your location. Sorry!');
+//                    break;
+//                case error.PERMISSION_DENIED:
+//                    alert('Please allow geolocation access for this to work.');
+//                    break;
+//                case error.UNKNOWN_ERROR:
+//                    alert('An unknown error occured!');
+//                    break;
+//            }
+        }
+
+        function bindData() {
+            try {
+                $.post("/Home/GetMembers", { number: routNumber }, function (data) {
+                    //map.clearOverlays();
+                    try {
+                        startOverlays = new Array();
+                        totalMembers = data.length;
+                        $("#membersCount").text(data.length + " 人正在共享位置");
+                        for (var i = 0; i < data.length; i++) {
+                            bindDrivingDic(data[i]);
+                        }
+                    }
+                    catch (e) {
+                    }
+                });
+
+//                if (!inLocationSaving) {
+                    saveLocation();
+//                }
+            }
+            catch (e) {
+            }
+        }
+
+        function bindDrivingDic(routMember) {
+            var currentRoutIndex = -1;
+            for (var i = 0; i < makerDic.length; i++) {
+                if (makerDic[i].key == routMember.UserId) {
+                    currentRoutIndex = i;
+                    break;
+                }
+            }
+
+            if (routMember.UserId == userID) {
+                myLocation = { lat: routMember.CurrentLatitude, lng: routMember.CurrentLongitude };
+            }
+
+            if (currentRoutIndex == -1) {
+                currentRoutIndex = makerDic.length;
+                makerDic.push(
+                {
+                    key: routMember.UserId,
+                    value: addMarker(new BMap.Point(routMember.CurrentLongitude, routMember.CurrentLatitude), 0, routMember.UserPicture, routMember.UserName)
+                });
+
+//                if (routMember.UserId == userID) {
+                    var driving = new BMap.DrivingRoute(map, {
+                        renderOptions: {
+                            map: map,
+                            autoViewport: true
+                        }
+                    });
+
+                    driving.search({ title: '起点', point: new BMap.Point(routMember.CurrentLongitude, routMember.CurrentLatitude) }, { title: '目的地:', point: new BMap.Point(toLgd, toLat) });
+                    driving.setSearchCompleteCallback(function (rs) {
+                        $("#lblDistance").text(rs.getPlan(0).getDistance() + " / ");
+                        $("#lblDuration").text(rs.getPlan(0).getDuration());
+                        var arrPois = rs.getPlan(0).getRoute(0).getPath();
+                        map.addOverlay(new BMap.Polyline(arrPois, { strokeColor: colorList[currentRoutIndex % 7] }));
+
+                        //                    var start = rs.getStart();
+                        //                    startOverlays.push(start);
+
+                        //                    if (startOverlays.length == totalMembers) {
+                        //                        for (var i = 0; i < startOverlays.length; i++) {
+                        //                            var overLays = map.getOverlays();
+                        //                            for (var j = overLays.length - 1; j >= 0; j--) {
+                        //                                if (overLays[j].S && overLays[j].S.lng == startOverlays[i].point.lng && overLays[j].S.lat == startOverlays[i].point.lat) {
+                        //                                    map.removeOverlay(overLays[j]);
+                        //                                }
+                        //                            }
+                        //                        }
+                        //                    }
+
+                    });
+//                }
+            }
+            else {
+                map.removeOverlay(makerDic[currentRoutIndex].value);
+                makerDic[currentRoutIndex].value = addMarker(new BMap.Point(routMember.CurrentLongitude, routMember.CurrentLatitude), 0, routMember.UserPicture, routMember.UserName);
+            }
+
+            map.addOverlay(makerDic[currentRoutIndex].value);
+        }
+
+        function addMarker(point, index, pic, title) { // 创建图标对象 
+            //var myIcon = new BMap.Icon(pic, new BMap.Size(46, 46), {
+            //    anchor: new BMap.Size(46, 46)
+            //});
+
+            if (!pic) {
+                pic = "http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46";
+            }
+
+            if (!title) {
+                title = "";
+            }
+
+            var myIcon = new BMap.Icon(pic, new BMap.Size(46, 46), {
+                anchor: new BMap.Size(46, 46)
+            });
+            // 创建标注对象并添加到地图 
+            var marker = new BMap.Marker(point, { icon: myIcon });
+            marker.setTitle(title);
+            marker.setLabel(new BMap.Label(title));
+            return marker;
+        }
+
+
+    </script>
+</div>
+
+

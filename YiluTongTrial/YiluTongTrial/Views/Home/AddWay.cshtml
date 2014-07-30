@@ -1,0 +1,67 @@
+﻿@model Senparc.Weixin.MP.Entities.WeixinUserInfoResult
+@{
+    ViewBag.Title = "Routing";
+    @*Layout = "~/Views/Shared/_Layout.cshtml";*@
+}
+
+<div data-role="page" data-theme="d">
+
+    <div data-role="header" data-theme="f">
+    </div><!-- /header -->
+    <div data-role="header" data-theme="d">
+        <a data-role="button" style="display:none"></a>
+        <h5>建立路线导航</h5>
+        <div style="float:right; margin:10px; margin-top:-33px;">
+            <a href="#infoPage" data-transition="flip"><img style="width:30px; height:30px;" src="@Model.headimgurl.Replace("/0", "/46")" /></a>
+        </div>
+    </div>
+    <div role="main" class="ui-content">
+        <form>
+            <label for="search-1">
+                请输入目的地
+            </label>
+            <input type="search" name="search-1" id="search-1" placeholder="请输入目的地">
+            <a href="javascript:search1()" data-role="button" data-icon="search" data-theme="g" data-inline="true">搜索</a>
+        </form>
+        <br />
+        <label for="search-1">
+            您也可以在地图上面选择
+        </label>
+        <div style="width:100%;">
+            <img src="../../Content/images/location.png" />
+        </div>
+    </div><!-- /content -->
+
+    <div data-role="footer" data-position="fixed" data-theme="a">
+
+        <div style="font-size:12px; line-height:150%; text-align:left; margin-left:5px; float:left">版权所有：Sea Star</div>
+        <div style="font-size:12px; line-height:150%; text-align:right; margin-right:10px; float:right">E-Trip</div>
+    </div><!-- /footer -->
+</div><!-- /page -->
+<div data-role="page" data-theme="d" id="infoPage">
+    <div data-role="header">
+        <h3>个人信息</h3>
+    </div>
+    <div role="main" class="ui-content">
+        <h3>昵称：@Model.nickname</h3>
+        <h3><img src="@Model.headimgurl" /></h3>
+    </div>
+    <div data-role="footer" data-position="fixed" data-theme="a">
+
+        <div style="font-size:12px; line-height:150%; text-align:left; margin-left:5px; float:left">版权所有：Sea Star</div>
+        <div style="font-size:12px; line-height:150%; text-align:right; margin-right:10px; float:right">E-Trip</div>
+    </div><!-- /footer -->
+</div>
+
+<script type="text/javascript">
+    function search1() {
+        var keyword = $("#search-1").val();
+        if (keyword == "") {
+            alert("请输入目的地");
+        } else {
+            $.mobile.navigate("/Home/Search?keyword=" + keyword + "&userid=@Model.openid", { transition: "slide" });
+        }
+    }
+
+
+</script>
