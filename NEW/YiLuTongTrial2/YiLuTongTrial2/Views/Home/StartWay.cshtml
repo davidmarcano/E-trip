@@ -1,0 +1,79 @@
+﻿@{
+    ViewBag.Title = "StartWay";
+    @* Layout = "~/Views/Shared/_Layout.cshtml"; *@
+}
+
+<div data-role="page" title="路线" id="startWayPage" data-theme="a">
+
+    <div data-role="header">
+        <a href="#" data-role="button" data-rel="back" data-icon="arrow-l" data-iconpos="notext"></a>
+        <h1>路线</h1>
+    </div>
+
+    <div data-role="content">
+        <div id="container" style="width: 100%; height: 500px">
+        </div>
+    </div>
+
+    <div data-role="footer" data-position="fixed">
+        <div style="float:left; width:70%; font-size:10px">
+            <label id="lblDistance" style="float:left"></label> <label id="lblDuration" style="float:left"></label>
+
+        </div>
+        <div style="float:right; width:30%">
+            <a href="#" data-role="button" data-icon="grid" onclick="startRouting()">导航</a>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript">
+    var driving;
+    var map = new BMap.Map("container");
+    var lat;
+    var long;
+    $(document).on("pageshow", "#startWayPage", function () {
+        map.centerAndZoom(108.88751, 34.230669, 14);
+
+        driving = new BMap.DrivingRoute(map, {
+            renderOptions: {
+                map: map,
+                autoViewport: true
+            }
+        });
+        driving.setSearchCompleteCallback(function (rs) {
+            $("#lblDistance").text(rs.getPlan(0).getDistance() + " / ");
+            $("#lblDuration").text(rs.getPlan(0).getDuration());
+
+
+            //            var myGeo = new BMap.Geocoder();
+            //            // 根据坐标得到地址描述
+            //            myGeo.getLocation(rs.getPlan(0).getRoute(0).getStep(40).getPosition(), function (result) {
+            //                if (result) {
+            //                    $("#lblDuration").text(result.address);
+            //                }
+            //            });
+        });
+        //position.coords.longitude
+        //position.coords.latitude
+        driving.search({ title: '起点', point: new BMap.Point(108.88751, 34.230669) }, { title: '你的家', point: new BMap.Point(109.069117, 34.276839) });
+    });
+
+    var startRouting = function () {
+        $.post("/Home/AddWay", {}, function (data) {
+            alert("创建路线成功，导航开始，房间号码为" + data.RouteNumber);
+            $.mobile.changePage("/Home/Routing?routnumber=" + data.RouteNumber + "&userid=" + data.UserId);
+        });
+    }
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        }
+        else { x.innerHTML = "Geolocation is not supported by this browser."; }
+    }
+
+    function showPosition(position) {
+        lat = position.coords.latitude;
+        long = position.coords.longitude;
+    }
+</script>
