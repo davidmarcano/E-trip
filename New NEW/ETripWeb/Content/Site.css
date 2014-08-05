@@ -1,0 +1,40 @@
+body
+        {
+            height: 100%;
+            margin: 0px;
+            background: url(images/bodybg.gif) repeat;
+        }
+        .ui-page
+        {
+            background: url(images/bodybg.gif) repeat !important;
+        }
+        .lbl-error
+        {
+            color: Red;
+        }
+        
+        .ui-btn-inner
+        {
+            white-space: normal;
+        }
+        
+        .ui-li-desc
+        {
+            white-space: normal;
+        }
+        
+        .ui-li .ui-btn-text
+        {
+            white-space: normal;
+        }
+        
+        .ui-icon-shadow
+        {
+            -moz-box-shadow: none;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+        }
+        .placeholder
+        {
+            color: #aaa;
+        }

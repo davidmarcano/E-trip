@@ -1,0 +1,58 @@
+﻿
+@model YiLuTong.Models.Route
+@{
+    ViewBag.Title = "123";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div data-role="page" data-theme="d">
+
+    <div data-role="header" data-theme="f">
+    </div><!-- /header -->
+    <div data-role="header" data-theme="d">
+        <a data-role="button" style="display:none"></a>
+        <h5>旅途帮助指南</h5>
+        <div style="float:right; margin:10px; margin-top:-33px;">
+            <a href="#infoPage" data-transition="flip"><img style="width:30px; height:30px;" /></a>
+        </div>
+    </div>
+    <p style="font-size:16px;margin-left:15px;margin-right:10px;color:darkgreen;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;您已经在其他的路线中，请阅读下面的说明进行选择吧！</p>
+    <div style="margin-left:10px;margin-right:10px;">
+        <form>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;如果您想继续当前的旅途，请点击“继续旅途”按钮。</p>
+            <div style="text-align:right;"><a data-role="button" data-theme="g" data-inline="true" onclick="gotoMap()">继续旅途</a></div>
+        </form>
+    </div>
+
+    <div style="margin-left:10px;margin-right:10px;">
+        <form>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;如果您想退出当前的旅途，请点击“退出旅途”按钮。</p>
+            <div style="text-align:right;">
+            <a data-role="button" data-theme="g" data-inline="true" onclick="endRoute()">退出旅途</a></div>
+        </form>
+
+    </div>   <!-- /content -->
+    <div data-role="footer" data-position="fixed" data-theme="a">
+
+        <div style="font-size:12px; line-height:150%; text-align:left; margin-left:5px; float:left">版权所有：Sea Star</div>
+        <div style="font-size:12px; line-height:150%; text-align:right; margin-right:10px; float:right">E-Trip</div>
+    </div><!-- /footer -->
+</div>
+
+<script type="text/javascript">
+    function gotoMap() {
+        $.mobile.navigate("/Home/Routing?routnumber=" + "@Model.RouteNumber" + "&userid=" + "@Model.UserId", { transition: "slide" });
+    }
+
+    function endRoute() {
+    $.get("/Home/deleteWay", {
+    routenumber: "@Model.RouteNumber",
+    userid: "@Model.UserId"
+    }, function () {
+    $.mobile.navigate("/OAuth2/JoinWay?userId="+"@Model.UserId"+"&number="+"@Model.RouteNumber", { transition: "slide" });
+    });
+    }
+
+
+</script>
+

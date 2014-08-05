@@ -1,0 +1,108 @@
+﻿@{
+    ViewBag.Title = "Navigate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+            var session = YiLuTong.BLL.SessionHelper.Get(ViewData["userid"].ToString());
+            
+    }
+<div data-role="page" id="navigatePage" data-theme="d">
+    @Html.Hidden("hidTitle", ViewData["title1"].ToString())
+    @Html.Hidden("hidUserId", ViewData["userid"].ToString())
+    @Html.Hidden("hidLat", ViewData["lat"].ToString())
+    @Html.Hidden("hidLng", ViewData["lng"].ToString())
+    <div data-role="header" data-theme="f">
+    </div>
+    <!-- /header -->
+    <div data-role="header" data-theme="d">
+    <a href="#" data-role="button" data-icon="back" data-rel="back" data-iconpos="notext"></a>
+        <h5>
+            导航</h5>
+    </div>
+    <div role="main">
+        <div id="map_canvas" style="width: 100%; height: 600px">
+        </div>
+    </div>
+    <!-- /content -->
+    <div data-role="footer" data-position="fixed" data-theme="a">
+        <div style="float: left; width: 70%; padding:4px;">
+            <div id="lblDistantion"></div>
+            <div id="lblDistance" style="float: left">
+            </div>
+            <div id="lblDuration" style="float: left">
+            </div>
+        </div>
+        <div style="float: right; text-align:right; padding-right:5px; width: 25%">
+        
+        
+            <a href="#" data-role="button" data-icon="grid" data-mini="true" onclick="startRouting()" data-theme="none">导航</a></div>
+    </div>
+    <!-- /footer -->
+    <script type="text/javascript">
+        $('#navigatePage').bind('pageshow', function (event, ui) {
+            init();
+        });
+
+        function init() {
+            showLoading();
+            map = new BMap.Map("map_canvas");
+            map.centerAndZoom("西安", 12);
+            driving = new BMap.DrivingRoute(map, {
+                renderOptions: {
+                    map: map,
+                    autoViewport: true
+                }
+            });
+            showPosition();
+        }
+        function addMarker(point, pic) { // 创建图标对象 
+            var myIcon = new BMap.Icon("@session.UserInfo.headimgurl", new BMap.Size(46, 46), {
+                anchor: new BMap.Size(46, 46)
+            });
+            // 创建标注对象并添加到地图 
+            var marker = new BMap.Marker(point, { icon: myIcon });
+            map.addOverlay(marker);
+        }
+
+        function startRouting() {
+            $.get("/Home/AddWay", {
+                fromLng: "@session.Longitude",
+                fromLat: "@session.Latitude",
+                toLng:$("#hidLng").val(),
+                toLat: $("#hidLat").val(),
+                userid:$("#hidUserId").val()
+            }, function (data) {
+                alert("创建路线成功，导航开始，路线号码为" + data.RouteNumber);
+                $.mobile.navigate("/Home/Routing?routnumber=" + data.RouteNumber + "&userid=" + data.UserId, { transition: "slide" });
+            });
+        }
+
+        function showPosition() {
+            driving.search({ title: '起点', point: new BMap.Point("@session.Longitude", "@session.Latitude") }, { title: '目的地:' + $("#hidTitle").val(), point: new BMap.Point($("#hidLng").val(), $("#hidLat").val()) });
+            driving.setSearchCompleteCallback(function (rs) {
+                hideLoading();
+                driving.clearResults();
+                $("#lblDistantion").text($("#hidTitle").val());
+                $("#lblDistance").text(rs.getPlan(0).getDistance() + " / ");
+                $("#lblDuration").text(rs.getPlan(0).getDuration());
+
+                var arrPois = rs.getPlan(0).getRoute(0).getPath();
+                map.addOverlay(new BMap.Polyline(arrPois, { strokeColor: 'red' }));
+                map.setViewport(arrPois);
+
+                addMarker(arrPois);
+            });
+        }
+
+        function showLoading() {
+            $.mobile.loading('show', {
+                textonly: false,   //是否只显示文字  
+                html: ""           //要显示的html内容，如图片等  
+            });
+        }
+        function hideLoading() {
+            $.mobile.loading('hide');
+        }
+    </script>
+</div>
+<!-- /page -->
